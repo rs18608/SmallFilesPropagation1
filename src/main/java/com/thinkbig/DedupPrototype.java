@@ -28,6 +28,13 @@ public class DedupPrototype extends Configured implements Tool {
         Path path1 = new Path("/user/lynnscott/sf/history");
         Path path2 = new Path("/user/lynnscott/sf/landingzone");
 
+
+        Path outputPath = new Path("/home/lynnscott/sf/master");
+        FileSystem fs = FileSystem.get(new URI(outputPath.toString()), conf);
+        // It will delete the output directory if it already exists. don't need
+        // to delete it manually
+        fs.delete(outputPath, true);
+
         MultipleInputs.addInputPath(job, path1, CombineTextInputFormat.class, VenusQHistoryMapper.class);
         MultipleInputs.addInputPath(job, path2, CombineTextInputFormat.class, LandingZoneMapper.class);
 

@@ -51,8 +51,8 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
 
         try {
             if (key.getJunkData().isValid()) {
-                writeToVenusQMaster(vqMasterBasePath, key.getJunkData().getEndDate(), key.getJunkData().getProcId(),
-                        key.getJunkData().getProduct(), batchId, bytesPairWritable);
+                writeToVenusQMaster(vqMasterBasePath, key.getJunkData().getEndDate(), key.getJunkData().getProduct(),
+                        key.getJunkData().getProcId(), batchId, bytesPairWritable);
                 writeHistoricalFile(key.getKey(), key.getJunkData().getEndDate(), batchId, historicalPath);
 
             } else {
@@ -64,7 +64,7 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
     }
 
     protected void writeToVenusQMaster(String vqMasterBasePath, String endDate,
-                                       String procId, String product, String batchId,
+                                       String product, String procId, String batchId,
                                        BytesPairWritable bytesPairWritable) throws IOException, InterruptedException {
 
         String fullVQMasterPath = getMasterPartitionedPath(vqMasterBasePath,

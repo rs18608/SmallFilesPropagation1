@@ -43,6 +43,13 @@ public class LandingZoneMapper extends Mapper<LongWritable, Text, JunkDataJoinKe
     protected JunkData getPrimaryKeyEntries(Text venusQBinary) throws IOException {
 
         List<String> items = Arrays.asList(venusQBinary.toString().split("\\s*,\\s*"));
-        return new JunkData(items.get(0), items.get(1), items.get(2), items.get(3), items.get(4));
+
+        System.out.println("STUFF: ");
+        System.out.println("0: " + items.get(0));
+        System.out.println("1:" + items.get(1));
+        System.out.println("2: " + items.get(2));
+        System.out.println("3: " + items.get(3));
+        System.out.println("4: " + items.get(4));
+        return new JunkData(items.get(0), items.get(1), items.get(4), items.get(2), items.get(3));
     }
 }
