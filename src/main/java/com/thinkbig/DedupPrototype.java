@@ -25,7 +25,7 @@ public class DedupPrototype extends Configured implements Tool {
         Configuration conf = this.getConf();
         Job job = Job.getInstance(conf);
 
-        Path path1 = new Path("/user/lynnscott/sf/history-in");
+        Path path1 = new Path("/user/lynnscott/sf/history");
         Path path2 = new Path("/user/lynnscott/sf/landingzone");
 
         MultipleInputs.addInputPath(job, path1, CombineTextInputFormat.class, VenusQHistoryMapper.class);

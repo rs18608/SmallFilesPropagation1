@@ -47,7 +47,7 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
 
         String batchId = "abc123";
         String historicalPath = "history";
-        String vqMasterBasePath = "seq";
+        String vqMasterBasePath = "vqm";
 
         try {
             if (key.getJunkData().isValid()) {
