@@ -1,5 +1,6 @@
 package com.thinkbig;
 
+import com.google.common.collect.Lists;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -35,6 +36,10 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
                        Context context) throws IOException, InterruptedException {
         Iterator<BytesPairWritable> valuesIterator = values.iterator();
         BytesPairWritable bytesPairWritable = valuesIterator.next();
+        int count = Lists.newArrayList(bytesPairWritable).size();
+        System.out.println("How Many: " + count);
+
+
 
         if (key.getSortOrder().equals(new IntWritable(0))) {
             //Entry already exists venusq_history table, do nothing.
