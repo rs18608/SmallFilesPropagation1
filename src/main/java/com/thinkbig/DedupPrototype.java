@@ -16,6 +16,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+
 import java.net.URI;
 
 public class DedupPrototype extends Configured implements Tool {
@@ -39,12 +41,12 @@ public class DedupPrototype extends Configured implements Tool {
         MultipleInputs.addInputPath(job, path2, CombineTextInputFormat.class, LandingZoneMapper.class);
 
 
-        job.setReducerClass(DedupReducer1.class);
-        job.setMapOutputKeyClass(JunkDataJoinKey.class);
-        job.setMapOutputValueClass(BytesPairWritable.class);
+        //job.setReducerClass(DedupReducer1.class);
+      //  job.setMapOutputKeyClass(JunkDataJoinKey.class);
+       // job.setMapOutputValueClass(BytesPairWritable.class);
         job.setGroupingComparatorClass(GroupingComparator.class);
         job.setSortComparatorClass(SortingComparator.class);
-        job.setJarByClass(VenusQHistoryMapper.class);
+        job.setJarByClass(DedupPrototype.class);
 
         Path output = new Path("/user/lynnscott/sf/master");
         FileSystem hdfs = FileSystem.get(conf);
@@ -54,10 +56,52 @@ public class DedupPrototype extends Configured implements Tool {
 
         MultipleOutputs.addNamedOutput(job, "history",
                 PlainTextOutputFormat.class, NullWritable.class, Text.class);
+
         MultipleOutputs.addNamedOutput(job, "master",
                 PlainTextOutputFormat.class, Text.class, Text.class);
 
+        System.out.println("START 1");
+        ChainMapper.addMapper(job, VenusQHistoryMapper.class, LongWritable.class, Text.class,
+                JunkDataJoinKey.class, BytesPairWritable.class, new Configuration(false));
+
+        System.out.println("START 2");
+        ChainReducer.setReducer(job, DedupReducer1.class, JunkDataJoinKey.class, BytesPairWritable.class,
+                Text.class, BytesPairWritable.class, new Configuration(false));
+
+        System.out.println("START 3");
+        ChainReducer.addMapper(job, MasterGoldenMapper.class, Text.class, BytesPairWritable.class,
+                Text.class, BytesPairWritable.class, new Configuration(false));
+
+
+       // ChainMapper.addMapper(job, MasterGoldenMapper.class, Text.class, BytesPairWritable.class,
+       //         Text.class, BytesPairWritable.class, new Configuration(false));
+
+
+
+        System.out.println("START 4");
+      //  ChainReducer.setReducer(job, MasterGoldenReducer.class, JunkDataJoinKey.class, BytesPairWritable.class,
+       //         BytesWritable.class, BytesPairWritable.class, new Configuration(false));
+
+
+        job.setReducerClass(MasterGoldenReducer.class);
+
+
+
 /*
+Didnt work
+    ChainMapper.addMapper()
+    ChainReducer.addReducer()
+    ChainReducer.addMapper()
+    ChainReducer.setReducer()
+
+    ChainMapper.addMapper()
+    ChainReducer.addReducer()
+    ChainMapper.addMapper()
+    ChainReducer.setReducer()
+
+
+
+
 
         job.setJobName("DedupPrototype");
         job.setJarByClass(DedupPrototype.class);
@@ -75,6 +119,10 @@ public class DedupPrototype extends Configured implements Tool {
         // format to TextInputFormat
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
+
+
+
+
 
         ChainMapper.addMapper(job, TokenizerMapper.class, LongWritable.class,
                 Text.class, Text.class, IntWritable.class, new Configuration(

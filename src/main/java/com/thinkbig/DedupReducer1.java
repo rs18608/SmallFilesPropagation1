@@ -17,7 +17,7 @@ import java.util.Iterator;
  * Created by rs186089 on 8/2/16.
  */
 public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
-        BytesWritable, BytesPairWritable> {
+        Text, BytesPairWritable> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DedupReducer1.class);
 
@@ -34,12 +34,11 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
     //CHANGE THIS TO reduce on the partition key.
     public void reduce(JunkDataJoinKey key, Iterable<BytesPairWritable> values,
                        Context context) throws IOException, InterruptedException {
+
         Iterator<BytesPairWritable> valuesIterator = values.iterator();
         BytesPairWritable bytesPairWritable = valuesIterator.next();
         int count = Lists.newArrayList(bytesPairWritable).size();
         System.out.println("How Many: " + count);
-
-
 
         if (key.getSortOrder().equals(new IntWritable(0))) {
             //Entry already exists venusq_history table, do nothing.
@@ -56,9 +55,16 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
 
         try {
             if (key.getJunkData().isValid()) {
-                writeToVenusQMaster(vqMasterBasePath, key.getJunkData().getEndDate(), key.getJunkData().getProduct(),
-                        key.getJunkData().getProcId(), batchId, bytesPairWritable);
+                //writeToVenusQMaster(vqMasterBasePath, key.getJunkData().getEndDate(), key.getJunkData().getProduct(),
+                //        key.getJunkData().getProcId(), batchId, bytesPairWritable);
+
                 writeHistoricalFile(key.getKey(), key.getJunkData().getEndDate(), batchId, historicalPath);
+
+                String fullVQMasterPath = getMasterPartitionedPath(vqMasterBasePath, key.getJunkData().getProcId(),
+                        key.getJunkData().getEndDate(), key.getJunkData().getProduct(), batchId, "text");
+
+
+                context.write(new Text(fullVQMasterPath), bytesPairWritable);
 
             } else {
                 LOG.error("Received an invalid venusq history record in the reducer: " + key.getJunkData().toString());
@@ -72,8 +78,8 @@ public class DedupReducer1 extends Reducer<JunkDataJoinKey, BytesPairWritable,
                                        String product, String procId, String batchId,
                                        BytesPairWritable bytesPairWritable) throws IOException, InterruptedException {
 
-        String fullVQMasterPath = getMasterPartitionedPath(vqMasterBasePath,
-                procId, endDate, product, batchId, "text");
+        String fullVQMasterPath = getMasterPartitionedPath(vqMasterBasePath, procId, endDate, product, batchId, "text");
+
 //What VenusQHistoryJoinKey, this writes to a sequence file with the file type (seq), the key, value, and the path.
 //Does mos.write write lists?
 
